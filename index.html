@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=Ovs, initial-scale=1.0">
+    <title>Ova Racing</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="./assets/styles.css">
+</head>
+
+<body>
+    <header>
+        <!-- Image and text -->
+        <nav class="navbar navbar-light bg-secondary">
+            <a class="navbar-brand mx-3" href="#">
+                <img src="./assets/logo.png" width="100" height="100" class="d-inline-block align-top" alt="">
+            </a>
+        </nav>
+    </header>
+    <main class="container h-100">
+        <div class="container p-2">
+
+            <div>
+                <div>
+                    
+                </div>
+                <div class="d-flex w-100 searchbar-cont">
+                    <div class="w-100 searchbar">
+                        <input class="form-control mr-sm-2" type="search" id="search" placeholder="Buscar patente" aria-label="Search">
+                    </div>
+                    <div style="color: white;display: none;">
+                        <input type="file" id="archivoJson">
+                    </div>
+                    <button class="btn btn-primary" id="load">Cargar</button>
+                    <button class="btn margin-l btn-danger" id="save">Guardar</button>
+                </div>
+
+                <table class="table table-dark">
+                    <thead>
+                        <tr>
+                            <th scope="col">Patente</th>
+                            <th scope="col">Dueño</th>
+                            <th scope="col">Invertido</th>
+                        </tr>
+                    </thead>
+                    <tbody id="autos">
+                        
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+            crossorigin="anonymous"></script>
+        <script src="utils.js"></script>
+    </main>
+    <footer></footer>
+</body>
+
+</html>
