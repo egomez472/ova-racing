@@ -53,6 +53,23 @@
                     </table>
                 </div>
                 <div class="d-flex">
+                    <form class="d-flex" id="add-task">
+                        <div class="form-group col margin-r">
+                            <label style="color: white;" for="trabajoN">Trabajo</label>
+                            <input type="text" class="form-control" name="trabajoN">
+                        </div>
+                        <div class="form-group col margin-r">
+                            <label style="color: white;" for="manoObraN">Precio mano de obra</label>
+                            <input type="text" class="form-control" name="manoObraN">
+                        </div>
+                        <div class="form-group col">
+                            <label style="color: white;" for="precioRepuestosN">Precio de repuestos</label>
+                            <input type="text" class="form-control" name="precioRepuestosN">
+                        </div>
+                        <button type="button" class="btn mt-4 btn-warning margin-l" onclick="agregarTrabajo()">Agregar</button>
+                    </form>
+                </div>
+                <div class="d-flex">
                     <div class="form-group col margin-r">
                         <label style="color: white;" for="totalManoObra">Total mano de obra</label>
                         <input type="text" class="form-control" id="totalManoObra" placeholder="Total" readonly disabled>

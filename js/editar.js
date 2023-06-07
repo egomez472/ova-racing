@@ -4,6 +4,11 @@ var tbody = document.querySelector("#auto");
 document.getElementById('patente').textContent = auto.patente;
 document.getElementById('cliente').textContent = auto.duenio;
 
+function agregarTrabajo(_auto, acta) {
+    const uuid_auto = auto.uuid;
+    post('cars/tasks', {}, uuid_auto);
+}
+
 function guardarCambios(_auto, acta) {
     let doc = document.getElementById(acta.uuid);
     let fechaIngreso = doc.querySelectorAll("td")[0].firstChild.textContent;
@@ -158,6 +163,22 @@ async function put(endpoint, body, uuid) {
     try {
         const response = await fetch(`http://localhost:3000/${endpoint}/${uuid}`, {
             method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache'
+            },
+            body: JSON.stringify(body)
+        });
+        return response;
+    } catch (error) {
+        console.log('Error: ', error);
+    }
+}
+
+async function post(endpoint, body, uuid) {
+    try {
+        const response = await fetch(`http://localhost:3000/${endpoint}/${uuid}`, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Cache-Control': 'no-cache'
