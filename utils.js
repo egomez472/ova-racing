@@ -4,60 +4,17 @@ var tbody = document.querySelector("#autos"); // Obtenemos la referencia al elem
 //============================ OBETENER AUTOS ============================
 async function getCars() {
     try {
-        autos = [];
-        const response = await fetch('http://localhost:3000/cars', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Cache-Control': 'no-cache'
-            }
-        });
-        const data = await response.json();
+        const data = await get('cars');
         for (let key in data) {
             if (data.hasOwnProperty(key)) {
                 let auto = data[key];
                 autos.push(auto)
             }
         }
+        console.log(autos);
         crearTabla(autos);
     } catch (error) {
         console.error('Error:', error);
-    }
-}
-
-//============================ AGREGAR AUTOS ============================
-async function saveCars() {
-    const url = 'http://localhost:3000/cars'; // Reemplaza con la URL de tu endpoint
-    var form = document.getElementById("auto-form");
-    var patente = form.elements.patente.value;
-    var duenio = form.elements.duenio.value;
-    var invertido = form.elements.invertido.value;
-    var acta = [{accion: "Sin modificaciones", manoObraValor: "1", repuestosValor: "1"}];
-    const datos = { patente, duenio, invertido, acta };
-    console.log(datos);
-
-    if (!patente || !duenio || !invertido) {
-        return alert('Ingresar todos los datos por favor.')
-    }
-
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Cache-Control': 'no-cache'
-            },
-            body: JSON.stringify(datos)
-        });
-
-        if (!response.ok) {
-            throw new Error('Error en la solicitud');
-        } else {
-            getCars();
-        }
-
-    } catch (error) {
-        console.error(error);
     }
 }
 
@@ -81,18 +38,18 @@ function crearTabla(autos) {
         var botonEditar = document.createElement("button");
         botonEditar.textContent = "Editar";
         botonEditar.className = "btn btn-warning";
-        botonEditar.id = producto.patente + 'edit';
+        botonEditar.id = producto.uuid + 'edit';
         botonEditar.onclick = function (param) {
-            var param = producto.patente;
+            var param = producto.uuid;
             editarAuto(param);
         };
 
         var botonEliminar = document.createElement("button");
         botonEliminar.textContent = "Eliminar";
         botonEliminar.className = "btn btn-danger margin-l";
-        botonEliminar.id = producto.patente + 'delete';
+        botonEliminar.id = producto.uuid + 'delete';
         botonEliminar.onclick = function (param) {
-            var param = producto.patente;
+            var param = producto.uuid;
             eliminarAuto(param);
         };
 
@@ -129,20 +86,47 @@ function eliminarContenidoTabla() {
 };
 
 //============================ ACCIONES ============================
+async function saveCars() {
+    var form = document.getElementById("auto-form");
+    var patente = form.elements.patente.value;
+    var duenio = form.elements.duenio.value;
+    var invertido = form.elements.invertido.value;
+    var acta = [{accion: "Sin modificaciones", manoObraValor: "0", repuestosValor: "0"}];
+    const datos = { patente, duenio, invertido, acta };
+
+    if (!patente || !duenio || !invertido) {
+        return alert('Ingresar todos los datos por favor.')
+    }
+    
+    try {
+        const response = await post('cars', datos);
+        if (!response.ok) {
+            throw new Error('Error en la solicitud');
+        } else {
+            form.reset();
+            getCars();
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 function editarAuto(auto) {
-    autoFound = autos.find(c => c.patente === auto)
+    autoFound = autos.find(c => c.uuid === auto);
     localStorage.setItem('editCar', JSON.stringify(autoFound))
     auto = document.getElementById(auto + 'edit');
-    console.log(auto);
     var a = document.createElement("a")
     a.href = "editar.html"
     auto.appendChild(a)
     a.click();
 };
 
-function eliminarAuto(auto) {
+async function eliminarAuto(auto) {
+    const response = await remove('cars', auto);
+    if(response.ok) {
+        getCars();
+    }
     auto = document.getElementById(auto + 'delete');
-    console.log(auto);
 };
 
 //============================ BUSCAR PATENTES ============================
@@ -211,6 +195,58 @@ function mostrarResultados(resultados) {
 //============================ UTILS ============================
 
 //formatear valores de numeros
+
+async function get(endpoint) {
+    try {
+        autos = [];
+        const response = await fetch(`http://localhost:3000/${endpoint}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache'
+            }
+        });
+        const data = await response.json();
+        console.log(data);
+        return data;
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+async function post(endpoint, body) {
+    try {
+        const response = await fetch(`http://localhost:3000/${endpoint}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache'
+            },
+            body: JSON.stringify(body)
+        });
+        return response;
+    } catch (error) {
+        console.log('Error: ', error);
+    }
+}
+
+async function remove(endpoint, id) {
+    try {
+        const response = await fetch(`http://localhost:3000/${endpoint}/${id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache'
+            }
+        });
+        if(!response.ok) {
+            throw new Error('Error en la solicitud:', response.status)
+        }
+        return response;
+    } catch (error) {
+        console.log('Error: ', error);
+    }
+}
 
 function convertirFormatoMoneda(numero) {
     // Convertir el string a número
