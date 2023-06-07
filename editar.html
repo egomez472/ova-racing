@@ -26,17 +26,25 @@
             <h3 style="color: white;">Inspeccionar o editar auto</h3>
 
             <form>
-                <div class="form-group">
-                  <label style="color: white;" for="patente">Patente</label>
-                  <input type="text" class="form-control" id="patente" placeholder="Patente">
+                <div class="form-group d-flex justify-content-center text-center align-items-center">
+                    <div class="margin-r d-flex mb-2 align-items-center box-info">
+                        <label class="margin-r label-style" style="color: white;" for="patente">Patente:</label>
+                        <span class="label-style" id="patente"></span>
+                    </div>
+                    <div class="d-flex align-items-center box-info mb-2">
+                        <label class="margin-r label-style" style="color: white;" for="cliente">Cliente:</label>
+                        <span class="label-style" id="cliente"></span>
+                    </div>
                 </div>
                 <div class="form-group">
                     <table class="table table-dark">
                         <thead>
                             <tr>
+                                <th scope="col">Fecha de ingreso</th>
                                 <th scope="col">Trabajo</th>
                                 <th scope="col">Precio mano de obra</th>
                                 <th scope="col">Precio de repuestos</th>
+                                <th scope="col">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="auto">
@@ -45,15 +53,15 @@
                     </table>
                 </div>
                 <div class="d-flex">
-                    <div class="form-group margin-r">
+                    <div class="form-group col margin-r">
                         <label style="color: white;" for="totalManoObra">Total mano de obra</label>
                         <input type="text" class="form-control" id="totalManoObra" placeholder="Total" readonly disabled>
                     </div>
-                    <div class="form-group margin-r">
+                    <div class="form-group col margin-r">
                         <label style="color: white;" for="totalRepuestos">Total repuestos</label>
                         <input type="text" class="form-control" id="totalRepuestos" placeholder="Total" readonly disabled>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group col">
                         <label style="color: white;" for="inversionTotal">Inversion total</label>
                         <input type="text" class="form-control" id="inversionTotal" placeholder="Total" readonly disabled>
                     </div>
@@ -62,7 +70,7 @@
 
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-        <script src="editar.js"></script>
+        <script src="./js/editar.js"></script>
     </main>
     <footer></footer>
 </body>

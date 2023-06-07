@@ -11,7 +11,6 @@ async function getCars() {
                 autos.push(auto)
             }
         }
-        console.log(autos);
         crearTabla(autos);
     } catch (error) {
         console.error('Error:', error);
@@ -25,18 +24,29 @@ function crearTabla(autos) {
     autos.map(function (producto) {
         var fila = document.createElement("tr"); // Creamos una nueva fila de tabla
 
+        var celdaFechaReg = document.createElement("td");
+        celdaFechaReg.textContent = formatTimestap(producto.fechaReg);
+        celdaFechaReg.className = "border-r";
+
         var celdaPatente = document.createElement("td"); // Creamos una celda para el nombre del producto
         celdaPatente.textContent = producto.patente; // Asignamos el valor del nombre del producto a la celda
+        celdaPatente.className = "border-r";
 
         var celdaDuenio = document.createElement("td"); // Creamos una celda para el precio del producto
         celdaDuenio.textContent = producto.duenio; // Asignamos el valor del precio del producto a la celda
+        celdaDuenio.className = "border-r";
 
         var celdaInvertido = document.createElement("td");
-        celdaInvertido.textContent = convertirFormatoMoneda(producto.invertido);
+        var invertido = 0;
+        producto.acta.forEach(trabajo => {
+            invertido += (JSON.parse(trabajo.manoObraValor) + JSON.parse(trabajo.repuestosValor));
+        })
+        celdaInvertido.textContent = convertirFormatoMoneda(invertido);
+        celdaInvertido.className = "border-r";
 
         var celdaAcciones = document.createElement("td");
         var botonEditar = document.createElement("button");
-        botonEditar.textContent = "Editar";
+        botonEditar.textContent = "Ver";
         botonEditar.className = "btn btn-warning";
         botonEditar.id = producto.uuid + 'edit';
         botonEditar.onclick = function (param) {
@@ -57,7 +67,7 @@ function crearTabla(autos) {
         celdaAcciones.appendChild(botonEliminar);
 
 
-
+        fila.appendChild(celdaFechaReg);
         fila.appendChild(celdaPatente); // Agregamos la celda de nombre a la fila
         fila.appendChild(celdaDuenio); // Agregamos la celda de precio a la fila
         fila.appendChild(celdaInvertido);
@@ -90,9 +100,10 @@ async function saveCars() {
     var form = document.getElementById("auto-form");
     var patente = form.elements.patente.value;
     var duenio = form.elements.duenio.value;
-    var invertido = form.elements.invertido.value;
-    var acta = [{accion: "Sin modificaciones", manoObraValor: "0", repuestosValor: "0"}];
-    const datos = { patente, duenio, invertido, acta };
+    var fechaReg = new Date().getTime();
+    var acta = [{uuid: generateUUID() ,accion: "Sin modificaciones", manoObraValor: "0", repuestosValor: "0", fechaIngreso: new Date().getTime()}];
+    var invertido = (JSON.parse(acta[0].manoObraValor) + JSON.parse(acta[0].repuestosValor)).toString();
+    const datos = { patente, duenio, invertido, acta, fechaReg };
 
     if (!patente || !duenio || !invertido) {
         return alert('Ingresar todos los datos por favor.')
@@ -122,10 +133,8 @@ function editarAuto(auto) {
 };
 
 async function eliminarAuto(auto) {
-    const response = await remove('cars', auto);
-    if(response.ok) {
-        getCars();
-    }
+    await remove('cars', auto);
+    await getCars();
     auto = document.getElementById(auto + 'delete');
 };
 
@@ -150,6 +159,10 @@ function mostrarResultados(resultados) {
     resultados.forEach(function (resultado) {
        var fila = document.createElement("tr"); // Creamos una nueva fila de tabla
 
+        var celdaFechaReg = document.createElement("td");
+        celdaFechaReg.textContent = formatTimestap(resultado.fechaReg);
+        celdaFechaReg.className = "border-r";
+
         var celdaPatente = document.createElement("td"); // Creamos una celda para el nombre del producto
         celdaPatente.textContent = resultado.patente; // Asignamos el valor del nombre del producto a la celda
 
@@ -161,28 +174,28 @@ function mostrarResultados(resultados) {
 
         var celdaAcciones = document.createElement("td");
         var botonEditar = document.createElement("button");
-        botonEditar.textContent = "Editar";
+        botonEditar.textContent = "Ver";
         botonEditar.className = "btn btn-warning";
-        botonEditar.id = resultado.patente + 'edit';
+        botonEditar.id = resultado.uuid + 'edit';
         botonEditar.onclick = function (param) {
-            var param = resultado.patente;
+            var param = resultado.uuid;
             editarAuto(param);
         };
 
         var botonEliminar = document.createElement("button");
         botonEliminar.textContent = "Eliminar";
         botonEliminar.className = "btn btn-danger margin-l";
-        botonEliminar.id = resultado.patente + 'delete';
+        botonEliminar.id = resultado.uuid + 'delete';
         botonEliminar.onclick = function (param) {
-            var param = resultado.patente;
+            var param = resultado.uuid;
             eliminarAuto(param);
         };
-
+        
         celdaAcciones.appendChild(botonEditar);
         celdaAcciones.appendChild(botonEliminar);
 
 
-
+        fila.appendChild(celdaFechaReg);
         fila.appendChild(celdaPatente); // Agregamos la celda de nombre a la fila
         fila.appendChild(celdaDuenio); // Agregamos la celda de precio a la fila
         fila.appendChild(celdaInvertido);
@@ -206,8 +219,7 @@ async function get(endpoint) {
                 'Cache-Control': 'no-cache'
             }
         });
-        const data = await response.json();
-        console.log(data);
+        const data = await response?.json();
         return data;
     } catch (error) {
         console.error('Error:', error);
@@ -237,7 +249,8 @@ async function remove(endpoint, id) {
             headers: {
                 'Content-Type': 'application/json',
                 'Cache-Control': 'no-cache'
-            }
+            },
+            body: JSON.stringify({})
         });
         if(!response.ok) {
             throw new Error('Error en la solicitud:', response.status)
@@ -268,6 +281,31 @@ function convertirFormatoMoneda(numero) {
     return numeroFormateado;
 };
 
+function formatTimestap(tmp) {
+    const timestamp = tmp;
+    const fecha = new Date(timestamp);
+    const dia = fecha.getDate();
+    const mes = fecha.getMonth() + 1; // Los meses van de 0 a 11, por lo que se suma 1
+    const anio = fecha.getFullYear() % 100; // Obtiene los últimos dos dígitos del año
+    const horas = fecha.getHours();
+    const minutos = fecha.getMinutes();
+
+    // Formatea la fecha como dd/mm/aa hh:mm
+    const fechaFormateada = `${dia.toString().padStart(2, '0')}/${mes.toString().padStart(2, '0')}/${anio.toString().padStart(2, '0')} ${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}`;
+
+    return fechaFormateada;
+}
+
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = (Math.random() * 16) | 0,
+            v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
+}
+
 //============================ EJECUTAR FUNCIONES ============================
+
+
 getCars();
 

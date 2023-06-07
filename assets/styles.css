@@ -17,3 +17,18 @@ body {
 .margin-r {
     margin-right: 1rem;
 }
+
+.border-r {
+    border-right: 1px solid grey;
+}
+ 
+.label-style {
+    font-size: 30px;
+    color: white;
+}
+
+.box-info {
+    border: 2px solid #6c757d;
+    padding: 1rem;
+    border-radius: 10px;
+}
