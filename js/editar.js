@@ -60,7 +60,9 @@ function cargarDatos(auto) {
       span_.id = "warn-task"
       tbody.appendChild(span_)
     } else {
-      document.getElementById("warn-task").remove();
+      if(document.getElementById("warn-task")) {
+        document.getElementById("warn-task").remove();
+      }
       var fila = document.createElement("tr"); // Creamos una nueva fila de tabla
       var celdaIngreso = document.createElement("td");
       var celdaTrabajo = document.createElement("td"); // Creamos una celda para el nombre del producto
@@ -73,7 +75,7 @@ function cargarDatos(auto) {
       celdaTrabajo.appendChild(trabajoInput);
   
       var manoObraInput = document.createElement("input");
-      manoObraInput.type = "number";
+      manoObraInput.type = "text";
       manoObraInput.className = "form-control mb-2";
       manoObraInput.value = element.manoObraValor;
       celdaManoObra.appendChild(manoObraInput);
@@ -95,16 +97,45 @@ function cargarDatos(auto) {
         ingresoText.textContent = formatTimestap(element.fechaIngreso);
       }
       celdaIngreso.appendChild(ingresoText);
-  
+
+      
       var accionesButton = document.createElement("button");
+      var contentButtons = newElement("div");
+      contentButtons.className = "d-flex align-items-center";
       accionesButton.type = "button";
-      accionesButton.className = "btn btn-success d-flex align-items-center"
-      accionesButton.textContent = "Guardar";
+      accionesButton.className = "btn btn-success margin-r d-flex align-items-center"
+      accionesButton.textContent = "💾";
       accionesButton.id = `${element.uuid}-save`
       accionesButton.onclick = function () {
         guardarCambios(auto, element);
       }
-      celdaAcciones.appendChild(accionesButton);
+      accionesButton.addEventListener('click', function(btn) {
+        var spinner = document.createElement('div');
+        spinner.className = "spinner"
+        spinner.id = 'spinner'
+        accionesButton.textContent = 'Guardando';
+        accionesButton.disabled = true;
+        accionesButton.appendChild(spinner)
+        setTimeout(() => {
+            document.getElementById('spinner').remove();
+            accionesButton.textContent = '💾'
+            accionesButton.disabled = false;
+            window.location.reload();
+        }, 1200);
+    })
+      contentButtons.appendChild(accionesButton);
+      
+      var buttonBorrar = document.createElement("button");
+      buttonBorrar.type = "button";
+      buttonBorrar.className = "btn btn-danger d-flex align-items-center"
+      buttonBorrar.textContent = "🗑️";
+      buttonBorrar.id = `${element.uuid}-save`
+      buttonBorrar.onclick = function () {
+        eliminarTarea(auto, element);
+      }
+      contentButtons.appendChild(buttonBorrar);
+      
+      celdaAcciones.appendChild(contentButtons);
   
       fila.id = element.uuid;
       var totalRepuestosInput = document.getElementById("totalRepuestos");
@@ -147,6 +178,17 @@ function convertirFormatoMoneda(numero) {
   // Retornar el número formateado
   return numeroFormateado;
 };
+
+function convertirStringANumero(str) {
+  // Eliminar los caracteres no numéricos del string
+  var numericString = str.replace(/[^0-9.-]/g, '');
+
+  // Convertir el string a número
+  var numero = parseFloat(numericString);
+
+  // Retornar el número
+  return numero;
+}
 
 function formatStrToTimestap(string) {
   const [fecha, hora] = string.split(' '); // Divide la cadena en fecha y hora
@@ -209,6 +251,41 @@ async function post(endpoint, body, uuid) {
   }
 }
 
+function formatNumber(n) {
+  return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function formatCurrency(input, currency, blur) {
+  var input_val = input.value;
+  if (input_val === "") {
+    return;
+  }
+  var original_len = input_val.length;
+  var caret_pos = input.selectionStart;
+  if (input_val.indexOf(".") >= 0) {
+    var decimal_pos = input_val.indexOf(".");
+    var left_side = input_val.substring(0, decimal_pos);
+    var right_side = input_val.substring(decimal_pos);
+    left_side = formatNumber(left_side);
+    right_side = formatNumber(right_side);
+    if (blur === "blur") {
+      right_side += "00";
+    }
+    right_side = right_side.substring(0, 2);
+    input_val = currency + left_side + "." + right_side;
+  } else {
+    input_val = formatNumber(input_val);
+    input_val = currency + input_val;
+    if (blur === "blur") {
+      input_val += ".00";
+    }
+  }
+  input.value = input_val;
+  var updated_len = input_val.length;
+  caret_pos = updated_len - original_len + caret_pos;
+  input.setSelectionRange(caret_pos, caret_pos);
+}
+
 function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
       var r = (Math.random() * 16) | 0,
@@ -219,9 +296,24 @@ function generateUUID() {
 
 //======================= SERVICIOS =====================
 
-function deleteCarById(id) {
-  database.ref(`/carsTest/${id}`).remove();
-  getCars();
+function eliminarTarea(auto, acta) {
+  var acta_ = auto.acta.filter(el => el.uuid !== acta.uuid);
+  var auto_ = {
+    acta: acta_
+  }
+  if(auto_.acta.length === 0) {
+    let isEmpty = {isEmpty: true}
+    auto_.acta.push(isEmpty);
+  }
+  database.ref(`/carsTest/${auto.uuid}`).update(auto_)
+  database.ref(`/carsTest/${auto.uuid}`).once('value', (snapshot) => {
+    const data = snapshot.val();
+    auto = data;
+    localStorage.setItem('editCar', JSON.stringify(auto));
+    window.location.reload();
+  }, (error) => {
+    console.log('Error al obtener los datos:', error);
+  });
 }
 
 function updateCarById(id, update) {
@@ -231,9 +323,15 @@ function updateCarById(id, update) {
 function agregarTrabajo(_auto) {
   const form = document.getElementById("add-task");
   var accion = form['trabajoN'].value;
-  var manoObraValor = form['manoObraN'].value;
-  var repuestosValor = form['repuestosN'].value;
+  if(!form['manoObraN'].value || !form['repuestosN'].value) {
+    return alert('Escribir valor en todos los campos de precios')
+  }
+  var manoObraValor = convertirStringANumero(form['manoObraN'].value).toString();
+  var repuestosValor = convertirStringANumero(form['repuestosN'].value).toString();
   var uuid = generateUUID();
+  if(auto.acta[0].isEmpty) {
+    auto.acta.pop();
+  }
   var newActa = {
     accion,
     fechaIngreso: new Date().getTime(),
@@ -241,6 +339,7 @@ function agregarTrabajo(_auto) {
     repuestosValor,
     uuid
   }
+  console.log(newActa);
 
   auto.acta.push(newActa);
 
@@ -251,6 +350,20 @@ function agregarTrabajo(_auto) {
 
 }
 
+function getElement(id) {
+  return document.getElementById(id);
+}
 
+function newElement(element) {
+  return document.createElement(element);
+}
+
+var zoomState = 0.8
+function zoom(param, inOut) {
+  zoomState = inOut === '+' ? zoomState + param : zoomState - param;
+  var zoomLevel = zoomState; // Nivel de zoom deseado
+  var scale = zoomLevel / window.devicePixelRatio;
+  document.body.style.zoom = scale;
+}
 
 cargarDatos(auto)

@@ -53,3 +53,21 @@ if(btnCargarUuid) {
         }, 1200);
     })
 }
+
+var btnGuardarUuid = document.getElementById(`${uuid}-save`);
+if(btnGuardarUuid) {
+    btnGuardarUuid.addEventListener('click', function(btn) {
+        var spinner = document.createElement('div');
+        spinner.className = "spinner"
+        spinner.id = 'spinner'
+        btnGuardarUuid.textContent = 'Guardando';
+        btnGuardarUuid.disabled = true;
+        btnGuardarUuid.appendChild(spinner)
+        setTimeout(() => {
+            document.getElementById('spinner').remove();
+            btnGuardarUuid.textContent = '💾'
+            btnGuardarUuid.disabled = false;
+            window.location.reload();
+        }, 1200);
+    })
+}

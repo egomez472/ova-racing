@@ -11,13 +11,9 @@
         integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <link rel="stylesheet" href="./assets/styles.css">
 
-    <script>
-        // Establecer el nivel de zoom inicial al cargar la página
-        window.onload = function() {
-          var viewportMeta = document.querySelector('meta[name="viewport"]');
-          viewportMeta.setAttribute('content', 'width=device-width, initial-scale=0.8');
-        };
-    </script>
+    <link rel="icon" type="image/png" sizes="16x16"  href="./assets/favico.png">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
 </head>
 
 <body>
@@ -33,7 +29,7 @@
             <button class="zoomOut" onclick="zoom(0.1, '+')">+</button>
         </div>
     </header>
-    <main class="container h-100">
+    <main class="container" style="height: 100vh;">
         <div class="container p-2">
 
             <div class="mb-3">

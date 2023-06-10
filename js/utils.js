@@ -190,7 +190,11 @@ function mostrarResultados(resultados) {
         var celdaInvertido = document.createElement("td");
         var invertido = 0;
         resultado.acta.forEach(trabajo => {
-            invertido += (JSON.parse(trabajo.manoObraValor) + JSON.parse(trabajo.repuestosValor));
+            if(trabajo.isEmpty) {
+                invertido = 0
+            } else {
+                invertido += (JSON.parse(trabajo.manoObraValor) + JSON.parse(trabajo.repuestosValor));
+            }
         })
         celdaInvertido.textContent = convertirFormatoMoneda(invertido);
         celdaInvertido.className = "border-r";

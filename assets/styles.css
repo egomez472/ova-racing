@@ -114,6 +114,25 @@ span {
     max-height: 40px;
 }
 
+.add-form {
+    width: 100%;
+    border: 3px solid #d30607;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.cont-h4 {
+    position: relative;
+    bottom: -17px;
+}
+
+.h4-add {
+    background-color: red!important;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    margin: unset;
+}
+
 .zoomOut:hover {
     background: rgb(255,255,255);
     background: linear-gradient(0deg, rgba(255,255,255,1) 20%, rgba(184,184,184,1) 48%);
@@ -127,6 +146,15 @@ span {
     border-top-color: #888;
     animation: spin 1s linear infinite;
     margin-left: 0.5rem;
+}
+
+.button-span {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.button-span-1:hover {
+    background-color: #ff000030;
 }
 
 @keyframes spin {

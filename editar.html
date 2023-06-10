@@ -10,6 +10,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="./assets/styles.css">
+
+    <link rel="icon" type="image/png" sizes="16x16"  href="./assets/favico.png">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
 </head>
 
 <body>
@@ -20,14 +24,20 @@
                 <img src="./assets/logo.png" class="d-inline-block align-top logo" alt="">
             </a>
         </nav>
+        <div class="buttonsZoom">
+            <button class="zoomIn" onclick="zoom(0.1, '-')"> - </button>
+            <button class="zoomOut" onclick="zoom(0.1, '+')">+</button>
+        </div>
     </header>
-    <main class="container h-100">
+    <main class="container" style="height: 100vh;">
         <div class="container p-2">
-
-            <h3 style="color: white;">Inspeccionar o editar cliente</h3>
-
             <div>
                 <div class="form-group d-flex justify-content-center text-center align-items-center">
+                    <a class="button-span" href="./index.html">
+                        <div class="margin-r d-flex mb-2 align-items-center box-info button-span-1">
+                            <span class="margin-r label-style">⬅️ Volver</span>
+                        </div>
+                    </a>
                     <div class="margin-r d-flex mb-2 align-items-center box-info">
                         <label class="margin-r label-style" style="color: white;" for="patente">Patente:</label>
                         <span class="label-style" id="patente"></span>
@@ -53,19 +63,34 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="d-flex">
-                    <form class="d-flex" id="add-task">
+                <div class="d-flex flex-column">
+                    <div class="d-flex justify-content-center cont-h4">
+                        <h4 class="h4-add">Agregar trabajo</h4>
+                    </div>
+                    <form class="d-flex add-form" id="add-task">
                         <div class="form-group col margin-r">
                             <label style="color: white;">Trabajo</label>
-                            <input type="text" class="form-control" id="trabajoN">
+                            <input type="text" class="form-control" id="trabajoN" placeholder="Descripción...">
                         </div>
                         <div class="form-group col margin-r">
                             <label style="color: white;">Precio mano de obra</label>
-                            <input type="text" id="manoObraN" class="form-control">
+                            <input 
+                                type="text" 
+                                id="manoObraN"
+                                class="form-control" 
+                                onBlur="formatCurrency(this, '$', 'blur');"
+                                onkeyup="formatCurrency(this, '$');" placeholder="Precio..." 
+                                />
                         </div>
                         <div class="form-group col">
                             <label style="color: white;">Precio de repuestos</label>
-                            <input type="text" id="repuestosN" class="form-control">
+                            <input 
+                                type="text" 
+                                id="repuestosN"
+                                class="form-control"
+                                onBlur="formatCurrency(this, '$', 'blur');"
+                                onkeyup="formatCurrency(this, '$');" placeholder="Precio..."
+                                />
                         </div>
                         <button type="button" class="btn mt-4 btn-warning margin-l" onclick="agregarTrabajo()">Agregar</button>
                     </form>
