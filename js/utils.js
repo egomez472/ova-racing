@@ -1,10 +1,25 @@
+const firebaseConfig = {
+    apiKey: "AIzaSyDBhVEGhhdfyawnhcK18W8nqp_vcFMy-hw",
+    authDomain: "ova-racing-db-7ec41.firebaseapp.com",
+    databaseURL: "https://ova-racing-db-7ec41-default-rtdb.firebaseio.com",
+    projectId: "ova-racing-db-7ec41",
+    storageBucket: "ova-racing-db-7ec41.appspot.com",
+    messagingSenderId: "651686116545",
+    appId: "1:651686116545:web:7edb103d6a0cf1dd67e840"
+};
+firebase.initializeApp(firebaseConfig);
+
+const database = firebase.database();
+const carsRef = database.ref('/carsTest');
+
 var autos = [] //array de autos
 var tbody = document.querySelector("#autos"); // Obtenemos la referencia al elemento <tbody>
 
 //============================ OBETENER AUTOS ============================
-async function getCars() {
-    try {
-        const data = await get('cars');
+function getCars() {
+    autos = [];
+    carsRef.once('value', (snapshot) => {
+        const data = snapshot.val();
         for (let key in data) {
             if (data.hasOwnProperty(key)) {
                 let auto = data[key];
@@ -12,40 +27,50 @@ async function getCars() {
             }
         }
         crearTabla(autos);
-    } catch (error) {
-        console.error('Error:', error);
-    }
+    }, (error) => {
+        console.log('Error al obtener los datos:', error);
+    });
+}
+
+function deleteCarById(id) {
+    database.ref(`/carsTest/${id}`).remove();
+    getCars();
 }
 
 //============================ INICIAR TABLA =================================
 function crearTabla(autos) {
     eliminarContenidoTabla();
+    evaluarTabla()
 
     autos.map(function (producto) {
-        var fila = document.createElement("tr"); // Creamos una nueva fila de tabla
+        var fila = newElement("tr"); // Creamos una nueva fila de tabla
 
-        var celdaFechaReg = document.createElement("td");
+        var celdaFechaReg = newElement("td");
         celdaFechaReg.textContent = formatTimestap(producto.fechaReg);
         celdaFechaReg.className = "border-r";
 
-        var celdaPatente = document.createElement("td"); // Creamos una celda para el nombre del producto
+        var celdaPatente = newElement("td"); // Creamos una celda para el nombre del producto
         celdaPatente.textContent = producto.patente; // Asignamos el valor del nombre del producto a la celda
         celdaPatente.className = "border-r";
 
-        var celdaDuenio = document.createElement("td"); // Creamos una celda para el precio del producto
+        var celdaDuenio = newElement("td"); // Creamos una celda para el precio del producto
         celdaDuenio.textContent = producto.duenio; // Asignamos el valor del precio del producto a la celda
         celdaDuenio.className = "border-r";
 
-        var celdaInvertido = document.createElement("td");
+        var celdaInvertido = newElement("td");
         var invertido = 0;
         producto.acta.forEach(trabajo => {
-            invertido += (JSON.parse(trabajo.manoObraValor) + JSON.parse(trabajo.repuestosValor));
+            if(trabajo.isEmpty) {
+                invertido = 0
+            } else {
+                invertido += (JSON.parse(trabajo.manoObraValor) + JSON.parse(trabajo.repuestosValor));
+            }
         })
         celdaInvertido.textContent = convertirFormatoMoneda(invertido);
         celdaInvertido.className = "border-r";
 
-        var celdaAcciones = document.createElement("td");
-        var botonEditar = document.createElement("button");
+        var celdaAcciones = newElement("td");
+        var botonEditar = newElement("button");
         botonEditar.textContent = "Ver";
         botonEditar.className = "btn btn-warning";
         botonEditar.id = producto.uuid + 'edit';
@@ -54,13 +79,13 @@ function crearTabla(autos) {
             editarAuto(param);
         };
 
-        var botonEliminar = document.createElement("button");
+        var botonEliminar = newElement("button");
         botonEliminar.textContent = "Eliminar";
         botonEliminar.className = "btn btn-danger margin-l";
         botonEliminar.id = producto.uuid + 'delete';
         botonEliminar.onclick = function (param) {
             var param = producto.uuid;
-            eliminarAuto(param);
+            deleteCarById(param);
         };
 
         celdaAcciones.appendChild(botonEditar);
@@ -78,17 +103,17 @@ function crearTabla(autos) {
 };
 
 function eliminarContenidoTabla() {
-    var tabla = document.querySelector("#autos"); // Reemplaza "miTabla" con el ID de tu tabla
+    var tabla = document.querySelector("#autos");
 
     var filas = tabla.querySelectorAll("tr") ? tabla.querySelectorAll("tr") : null;
-    if (filas) {
+    if (filas.length !== 0) {
         filas.forEach(function (fila) {
             fila.remove();
         });
     }
 
     var celdas = tabla.querySelectorAll("td") ? tabla.querySelectorAll("td") : null;
-    if (celdas) {
+    if (celdas.length !== 0) {
         celdas.forEach(function (celda) {
             celda.remove();
         });
@@ -101,25 +126,24 @@ async function saveCars() {
     var patente = form.elements.patente.value;
     var duenio = form.elements.duenio.value;
     var fechaReg = new Date().getTime();
-    var acta = [{uuid: generateUUID() ,accion: "Sin modificaciones", manoObraValor: "0", repuestosValor: "0", fechaIngreso: new Date().getTime()}];
-    var invertido = (JSON.parse(acta[0].manoObraValor) + JSON.parse(acta[0].repuestosValor)).toString();
+    var acta = [{isEmpty: true}];
+    var invertido = "0";
     const datos = { patente, duenio, invertido, acta, fechaReg };
 
     if (!patente || !duenio || !invertido) {
         return alert('Ingresar todos los datos por favor.')
     }
+    const newcar = await carsRef.push(datos)
     
-    try {
-        const response = await post('cars', datos);
-        if (!response.ok) {
-            throw new Error('Error en la solicitud');
-        } else {
-            form.reset();
-            getCars();
-        }
-    } catch (error) {
-        console.error(error);
-    }
+    await newcar.set({
+        uuid: newcar._delegate._path.pieces_[1],
+        acta: datos.acta,
+        patente: datos.patente,
+        duenio: datos.duenio,
+        fechaReg: datos.fechaReg
+    });
+    form.reset();
+    getCars();
 }
 
 function editarAuto(auto) {
@@ -132,14 +156,8 @@ function editarAuto(auto) {
     a.click();
 };
 
-async function eliminarAuto(auto) {
-    await remove('cars', auto);
-    await getCars();
-    auto = document.getElementById(auto + 'delete');
-};
-
 //============================ BUSCAR PATENTES ============================
-inputBusqueda = document.getElementById("search");
+var inputBusqueda = document.getElementById("search");
 inputBusqueda.addEventListener("input", function () {
     var terminoBusqueda = inputBusqueda.value.toLowerCase();
 
@@ -170,7 +188,12 @@ function mostrarResultados(resultados) {
         celdaDuenio.textContent = resultado.duenio; // Asignamos el valor del precio del producto a la celda
 
         var celdaInvertido = document.createElement("td");
-        celdaInvertido.textContent = convertirFormatoMoneda(resultado.invertido);
+        var invertido = 0;
+        resultado.acta.forEach(trabajo => {
+            invertido += (JSON.parse(trabajo.manoObraValor) + JSON.parse(trabajo.repuestosValor));
+        })
+        celdaInvertido.textContent = convertirFormatoMoneda(invertido);
+        celdaInvertido.className = "border-r";
 
         var celdaAcciones = document.createElement("td");
         var botonEditar = document.createElement("button");
@@ -188,7 +211,7 @@ function mostrarResultados(resultados) {
         botonEliminar.id = resultado.uuid + 'delete';
         botonEliminar.onclick = function (param) {
             var param = resultado.uuid;
-            eliminarAuto(param);
+            deleteCarById(param);
         };
         
         celdaAcciones.appendChild(botonEditar);
@@ -206,60 +229,6 @@ function mostrarResultados(resultados) {
 };
 
 //============================ UTILS ============================
-
-//formatear valores de numeros
-
-async function get(endpoint) {
-    try {
-        autos = [];
-        const response = await fetch(`http://localhost:3000/${endpoint}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Cache-Control': 'no-cache'
-            }
-        });
-        const data = await response?.json();
-        return data;
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
-
-async function post(endpoint, body) {
-    try {
-        const response = await fetch(`http://localhost:3000/${endpoint}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Cache-Control': 'no-cache'
-            },
-            body: JSON.stringify(body)
-        });
-        return response;
-    } catch (error) {
-        console.log('Error: ', error);
-    }
-}
-
-async function remove(endpoint, id) {
-    try {
-        const response = await fetch(`http://localhost:3000/${endpoint}/${id}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Cache-Control': 'no-cache'
-            },
-            body: JSON.stringify({})
-        });
-        if(!response.ok) {
-            throw new Error('Error en la solicitud:', response.status)
-        }
-        return response;
-    } catch (error) {
-        console.log('Error: ', error);
-    }
-}
 
 function convertirFormatoMoneda(numero) {
     // Convertir el string a número
@@ -304,8 +273,43 @@ function generateUUID() {
     });
 }
 
+function evaluarTabla() {
+    if(autos.length === 0 && !getElement("aviso-table")) {
+        var table = getElement("table-cars");
+        var aviso = newElement("span");
+        aviso.id = "aviso-table"
+        aviso.textContent = "Ningun cliente registrado...";
+        table.appendChild(aviso);
+    } else if (autos.length !== 0 && getElement("aviso-table")) {
+        getElement("aviso-table").remove();
+    }
+}
+
+function getElement(id) {
+    return document.getElementById(id);
+}
+
+function newElement(element) {
+    return document.createElement(element);
+}
+
 //============================ EJECUTAR FUNCIONES ============================
-
-
 getCars();
+
+var zoomState = 0.8
+function zoom(param, inOut) {
+    zoomState = inOut === '+' ? zoomState + param : zoomState - param;
+    var zoomLevel = zoomState; // Nivel de zoom deseado
+    var scale = zoomLevel / window.devicePixelRatio;
+    document.body.style.zoom = scale;
+}
+
+window.onload = function () {
+    var zoomLevel = 0.8;
+    var scale = zoomLevel / window.devicePixelRatio;
+    document.body.style.zoom = scale;
+};
+  
+
+
 

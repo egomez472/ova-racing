@@ -10,59 +10,73 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <link rel="stylesheet" href="./assets/styles.css">
+
+    <script>
+        // Establecer el nivel de zoom inicial al cargar la página
+        window.onload = function() {
+          var viewportMeta = document.querySelector('meta[name="viewport"]');
+          viewportMeta.setAttribute('content', 'width=device-width, initial-scale=0.8');
+        };
+    </script>
 </head>
 
 <body>
     <header>
         <!-- Image and text -->
-        <nav class="navbar navbar-light bg-secondary">
-            <a class="navbar-brand mx-3" href="#">
-                <img src="./assets/logo.png" width="100" height="100" class="d-inline-block align-top" alt="">
+        <nav class="navbar navbar-light bg-warning justify-content-center">
+            <a class="navbar-brand mx-3" href="index.html">
+                <img src="./assets/logo.png" class="d-inline-block align-top logo" alt="">
             </a>
         </nav>
+        <div class="buttonsZoom">
+            <button class="zoomIn" onclick="zoom(0.1, '-')"> - </button>
+            <button class="zoomOut" onclick="zoom(0.1, '+')">+</button>
+        </div>
     </header>
     <main class="container h-100">
         <div class="container p-2">
 
-            <div class="mb-4">
+            <div class="mb-3">
                 <div>
-                    <span style="color:white;font-size: 24px;">Registrar un nuevo auto</span>
+                    <span style="color:white;font-size: 24px;">Registrar un nuevo cliente</span>
                     <form class="d-flex w-100" id="auto-form">
                         <div class="form-group w-100">
-                            <input type="text" class="form-control" name="patente" id="patente" placeholder="Ingresar patente">
+                            <input type="text" class="form-control" name="patente" id="patente"
+                                placeholder="Ingresar patente">
                         </div>
                         <div class="form-group w-100 margin-l">
-                            <input type="text" class="form-control" name="duenio" id="duenio" placeholder="Ingresar dueño">
+                            <input type="text" class="form-control" name="duenio" id="duenio"
+                                placeholder="Ingresar dueño">
                         </div>
-                        <button type="button" class="btn btn-success margin-l" onclick="saveCars()">Agregar</button>
+                        <button type="button" id="btn-agregar" class="btn btn-success margin-l d-flex align-items-center" onclick="saveCars()">Agregar</button>
                     </form>
                 </div>
             </div>
 
             <div>
-                <span style="color:white;font-size: 24px;">Autos registrados</span>
+                <span style="color:white;font-size: 24px;">Clientes registrados</span>
                 <div>
                     <form class="d-flex w-100 searchbar-cont" id="search-form">
                         <div class="w-100 searchbar">
-                            <input class="form-control mr-sm-2" type="search" name="search" id="search" placeholder="Buscar patente"
-                                aria-label="Search">
+                            <input class="form-control mr-sm-2" type="search" name="search" id="search"
+                                placeholder="Buscar patente" aria-label="Search">
                         </div>
                         <div style="color: white;display: none;">
                             <input type="file" id="archivoJson">
                         </div>
-                        <button type="button" class="btn btn-primary" onclick="getCars()">Cargar</button>
+                        <button type="button" id="btn-cargar" class="btn btn-primary d-flex align-items-center" onclick="getCars()">Cargar</button>
                     </form>
                     <!-- <button class="btn margin-l btn-danger" id="save">Guardar</button> -->
                 </div>
-
-                <table class="table table-dark">
+                <!-- <div class="spinner"></div> -->
+                <table class="table table-hover table-dark" id="table-cars">
                     <thead>
                         <tr>
-                            <th scope="col">Fecha de registro</th>
-                            <th scope="col">Patente</th>
-                            <th scope="col">Dueño</th>
-                            <th scope="col">Invertido</th>
-                            <th scope="col">Acciones</th>
+                            <th scope="col" class="border-r radius-1">Fecha de registro</th>
+                            <th scope="col" class="border-r radius">Patente</th>
+                            <th scope="col" class="border-r radius">Cliente</th>
+                            <th scope="col" class="border-r radius">Invertido</th>
+                            <th scope="col" class="radius-0">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="autos">
@@ -73,11 +87,16 @@
 
         </div>
 
+
+        <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
         <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
             crossorigin="anonymous"></script>
         <script src="./js/utils.js"></script>
+        <script src="./js/btns.js"></script>
     </main>
     <footer></footer>
 </body>
