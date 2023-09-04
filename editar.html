@@ -17,6 +17,7 @@
 </head>
 
 <body>
+    
     <header>
         <!-- Image and text -->
         <nav class="navbar navbar-light bg-warning justify-content-center">
@@ -25,8 +26,13 @@
             </a>
         </nav>
         <div class="buttonsZoom">
-            <button class="zoomIn" onclick="zoom(0.1, '-')"> - </button>
-            <button class="zoomOut" onclick="zoom(0.1, '+')">+</button>
+            <div style="display: flex;align-items: flex-end;">
+                <button class="button-print" onclick="imprimirFactura()">🖨️</button>
+            </div>
+            <div>
+                <button class="zoomIn" onclick="zoom(0.05, '-')"> - </button>
+                <button class="zoomOut" onclick="zoom(0.05, '+')">+</button>
+            </div>
         </div>
     </header>
     <main class="container" style="height: 100vh;">
@@ -113,7 +119,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
         <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -125,6 +130,30 @@
         <script src="./js/editar.js"></script>
         <script src="./js/btns.js"></script>
     </main>
+    <div class="invoice">
+        <div class="customer-info">
+            <p style="text-align: center; font-size: 20px;" id="info-cliente"></p>
+        </div>
+        <table class="invoice-table">
+            <thead>
+                <tr>
+                    <th>Fecha de ingreso</th>
+                    <th>Trabajo</th>
+                    <th>Precio mano de obra</th>
+                    <th>Precio repuesto</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody id="printCar">
+                <!-- Repite esta fila para cada producto -->
+
+                <!-- Repite esta fila para cada producto -->
+            </tbody>
+        </table>
+        <div class="total">
+            <p id="total-a-pagar-print"></p>
+        </div>
+    </div>
     <footer></footer>
 </body>
 

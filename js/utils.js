@@ -26,10 +26,15 @@ function getCars() {
                 autos.push(auto)
             }
         }
-        crearTabla(autos);
+        let sorted = ordenarArregloPorPropiedad(autos, "fechaReg");
+        crearTabla(sorted);
     }, (error) => {
         console.log('Error al obtener los datos:', error);
     });
+}
+
+function ordenarArregloPorPropiedad(arr, propiedad) {
+    return arr.sort((a, b) => b[propiedad] - a[propiedad]);
 }
 
 function deleteCarById(id) {
@@ -61,6 +66,8 @@ function crearTabla(autos) {
         var invertido = 0;
         producto.acta.forEach(trabajo => {
             if(trabajo.isEmpty) {
+                invertido = 0
+            } else if(trabajo.manoObraValor === ''){
                 invertido = 0
             } else {
                 invertido += (JSON.parse(trabajo.manoObraValor) + JSON.parse(trabajo.repuestosValor));
@@ -300,19 +307,19 @@ function newElement(element) {
 //============================ EJECUTAR FUNCIONES ============================
 getCars();
 
-var zoomState = 0.8
+var zoomState = localStorage.getItem('zoom-state') ? JSON.parse(localStorage.getItem('zoom-state')) : 0.8;
 function zoom(param, inOut) {
     zoomState = inOut === '+' ? zoomState + param : zoomState - param;
     var zoomLevel = zoomState; // Nivel de zoom deseado
     var scale = zoomLevel / window.devicePixelRatio;
+    localStorage.setItem('zoom-state', JSON.stringify(scale))
     document.body.style.zoom = scale;
 }
 
-window.onload = function () {
-    var zoomLevel = 0.8;
-    var scale = zoomLevel / window.devicePixelRatio;
-    document.body.style.zoom = scale;
-};
+function loadZoomState(zoom) {
+    document.body.style.zoom = zoom;
+}  
+loadZoomState(zoomState);
   
 
 

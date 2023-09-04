@@ -71,6 +71,13 @@ span {
 }
 
 .buttonsZoom {
+    display: flex;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+}
+
+.buttonsZoomIndex {
     position: fixed;
     bottom: 10px;
     right: 10px;
@@ -155,6 +162,77 @@ span {
 
 .button-span-1:hover {
     background-color: #ff000030;
+}
+
+@media print {
+    main {
+        display: none!important;
+    }
+
+    .invoice {
+        display: block!important;
+    }
+    .invoice, .invoice * {
+        visibility: visible;
+    }
+    .logo {
+        visibility: visible;
+    }
+
+    .p-2, .p-2 * {
+        display: none!important;
+    }
+
+    .buttonsZoom {
+        display: none!important;
+    }
+}
+
+.invoice {
+    display: none;
+}
+
+.invoice {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.customer-info {
+    margin-top: 20px;
+}
+
+.invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.invoice-table th, .invoice-table td {
+    border: 1px solid #ccc;
+    text-align: center;
+}
+
+.total {
+    margin-top: 20px;
+    text-align: right;
+    font-weight: bold;
+}
+
+.button-print {
+    border-radius: 5px;
+    height: 45px;
+    width: 45px;
+    background: red;
+    border: none;
+    margin: 0 5px;
 }
 
 @keyframes spin {

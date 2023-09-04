@@ -63,32 +63,35 @@ function cargarDatos(auto) {
       if(document.getElementById("warn-task")) {
         document.getElementById("warn-task").remove();
       }
-      var fila = document.createElement("tr"); // Creamos una nueva fila de tabla
+      var fila = document.createElement("tr");
       var celdaIngreso = document.createElement("td");
-      var celdaTrabajo = document.createElement("td"); // Creamos una celda para el nombre del producto
+      var celdaTrabajo = document.createElement("td");
       var celdaManoObra = document.createElement("td");
       var celdaRepuestos = document.createElement("td");
       var celdaAcciones = document.createElement("td");
       var trabajoInput = document.createElement("input");
       trabajoInput.className = "form-control mb-2";
-      trabajoInput.value = element.accion; // Asignamos el valor del nombre del producto a la celda
+      trabajoInput.value = element.accion;
       celdaTrabajo.appendChild(trabajoInput);
-  
+      
+      let manoObra = element.manoObraValor == "" ? "0" : element.manoObraValor;
+      let repuestos = element.repuestosValor == "" ? "0" : element.repuestosValor;
+
       var manoObraInput = document.createElement("input");
       manoObraInput.type = "text";
       manoObraInput.className = "form-control mb-2";
-      manoObraInput.value = element.manoObraValor;
+      manoObraInput.value = manoObra;
       celdaManoObra.appendChild(manoObraInput);
   
       var repuestosValorInput = document.createElement("input");
       repuestosValorInput.type = "number";
       repuestosValorInput.className = "form-control mb-2";
-      repuestosValorInput.value = element.repuestosValor;
+      repuestosValorInput.value = repuestos;
       celdaRepuestos.appendChild(repuestosValorInput);
-  
-      valorTotal += (JSON.parse(element.manoObraValor) + JSON.parse(element.repuestosValor));
-      valorRepuestosTotal += JSON.parse(element.repuestosValor);
-      valorManoObraTotal += JSON.parse(element.manoObraValor);
+      
+      valorTotal += (JSON.parse(manoObra == "" ? "0" : manoObra) + JSON.parse(repuestos == "" ? "0" : repuestos));
+      valorRepuestosTotal += JSON.parse(repuestos == "" ? "0" : repuestos);
+      valorManoObraTotal += JSON.parse(manoObra == "" ? "0" : manoObra);
   
       var ingresoText = document.createElement("td")
       if (element.accion === "Sin modificaciones") {
@@ -350,6 +353,37 @@ function agregarTrabajo(_auto) {
 
 }
 
+function imprimirFactura() {
+  console.log(auto);
+  let duenio = auto.duenio;
+  let patente = auto.patente;
+  let infoCliente = document.getElementById("info-cliente");
+  infoCliente.innerText = `Cliente: ${duenio} - Patente del vehículo: ${patente}`;
+
+  let tablePrint = document.getElementById("printCar");
+  let html = '';
+  let totalAPagar = 0;
+  auto.acta.forEach(ob => {
+    let totalPagar = (JSON.parse(ob.manoObraValor) + JSON.parse(ob.repuestosValor));
+    totalAPagar += totalPagar;
+    html += 
+    `
+    <tr>
+      <td>${formatTimestap(ob.fechaIngreso)}</td>
+      <td>${ob.accion}</td>
+      <td>${ob.manoObraValor == "0" ? "-" : convertirFormatoMoneda(ob.manoObraValor)}</td>
+      <td>${convertirFormatoMoneda(ob.repuestosValor)}</td>
+      <td>${convertirFormatoMoneda(totalPagar)}</td>
+    </tr>
+    `
+  })
+  document.getElementById("total-a-pagar-print").innerText = `Total a pagar: ${convertirFormatoMoneda(totalAPagar)}`
+  tablePrint.innerHTML = html;
+
+
+  window.print();
+}
+
 function getElement(id) {
   return document.getElementById(id);
 }
@@ -358,12 +392,18 @@ function newElement(element) {
   return document.createElement(element);
 }
 
-var zoomState = 0.8
+var zoomState = localStorage.getItem('zoom-state') ? JSON.parse(localStorage.getItem('zoom-state')) : 0.8;
 function zoom(param, inOut) {
   zoomState = inOut === '+' ? zoomState + param : zoomState - param;
   var zoomLevel = zoomState; // Nivel de zoom deseado
   var scale = zoomLevel / window.devicePixelRatio;
+  localStorage.setItem('zoom-state', JSON.stringify(scale))
   document.body.style.zoom = scale;
 }
 
+function loadZoomState(zoom) {
+  document.body.style.zoom = zoom;
+}
+
+loadZoomState(zoomState);
 cargarDatos(auto)
